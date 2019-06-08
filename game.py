@@ -28,14 +28,37 @@ RECT_COLOR = (255, 0, 0)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 myFont = pygame.font.SysFont("david", 64)
-start = True
+start = False
+start_time = 0
+end_time = 0
 
 miss = 0
 score = 0
 while True:
+    while int(end_time-start_time) >= 60:
+        surface.blit(scoreLabel, (10, 10))
+        surface.blit(timeLabel, (width//2-len(str(int(end_time-start_time)))*36, 10))
+        surface.blit(missLabel, (width - (len('Missed: ' + str(miss)) * 36), 10))
+        pygame.display.flip()
+    
     while not start:
-        rect = pygame.Rect((x, y), (size, size))
-	    
+        startButton = pygame.Rect((0, 0), (width, height))
+        startRect = pygame.Rect((x, y), (size, size))
+        startLabel = myFont.render('Click on the screen to start', 1, WHITE)
+        surface.fill(BLACK)
+        surface.fill(BLACK, startButton)
+        surface.fill(RECT_COLOR, startRect)
+        surface.blit(startLabel, (x//4, y//2))
+        pygame.display.flip()
+        for ev in pygame.event.get():
+            if ev.type == QUIT:
+                pygame.quit()
+            elif ev.type == pygame.MOUSEBUTTONDOWN:
+                if startButton.collidepoint(ev.pos):
+                    start_time = time.time()
+                    score = 0
+                    miss = 0
+                    start = True
     rect = pygame.Rect((x, y), (size, size))
     for ev in pygame.event.get():
         if ev.type == QUIT:
@@ -47,8 +70,6 @@ while True:
             	miss += 1
         elif ev.type == pygame.MOUSEBUTTONUP:
             touched = False
-            in_motion = True
-    clock.tick(FPS)
     surface.fill(BLACK)
     if touched:
         y = rand.randint(50, height-size) # from 50 becuase the score line
@@ -57,10 +78,12 @@ while True:
         touched = False
     else:
         pass
-
+    end_time = time.time()
     scoreLabel = myFont.render('Score: ' + str(score), 1, WHITE)
     missLabel = myFont.render('Missed: ' + str(miss), 1, WHITE)
+    timeLabel = myFont.render(str(int(end_time-start_time)), 1, WHITE)
     surface.blit(scoreLabel, (10, 10))
+    surface.blit(timeLabel, (width//2-len(str(int(end_time-start_time)))*36, 10))
     surface.blit(missLabel, (width - (len('Missed: ' + str(miss)) * 36), 10))
     surface.fill(RECT_COLOR, rect)
     pygame.display.flip()
